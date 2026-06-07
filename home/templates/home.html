@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- =======================
+    ANIMATION LIBRARIES
+======================= -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+</script>
+
+<style>
+
+body {
+    background: #f8f9fa;
+}
+
+/* =======================
+   HERO STYLING
+======================= */
+.hero-section {
+    padding: 80px 20px;
+}
+
+/* =======================
+   CARD ANIMATION HOVER
+======================= */
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* =======================
+   BUTTON EFFECT
+======================= */
+.btn-dark {
+    transition: all 0.2s ease;
+}
+
+.btn-dark:hover {
+    transform: scale(1.05);
+}
+
+/* =======================
+   TABLE STYLING
+======================= */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.section-title {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+</style>
+
+<!-- =======================
+        HERO SECTION
+======================= -->
+
+<div class="text-center hero-section">
+
+    <h1 class="display-4 fw-bold animate__animated animate__fadeInDown">
+        Smart Invoice Processing System
+    </h1>
+
+    <p class="lead text-muted mx-auto mt-3 animate__animated animate__fadeInUp"
+       style="max-width: 750px;">
+        Upload invoice spreadsheets and automatically generate customer invoices,
+        PDF documents, and downloadable invoice archives in seconds.
+    </p>
+
+    {% if user.is_authenticated %}
+
+        <a href="{% url 'upload-file' %}"
+           class="btn btn-dark btn-lg mt-4 animate__animated animate__fadeInUp">
+            Upload File
+        </a>
+
+    {% else %}
+
+        <a href="{% url 'login' %}"
+           class="btn btn-dark btn-lg mt-4 animate__animated animate__fadeInUp">
+            Get Started
+        </a>
+
+    {% endif %}
+
+</div>
+
+<!-- =======================
+        3 STEPS SECTION
+======================= -->
+
+<div class="container mt-5">
+
+    <div class="row g-4">
+
+        <div class="col-md-4" data-aos="fade-up">
+            <div class="card h-100 p-3 text-center">
+                <h4>📤 Upload Spreadsheet</h4>
+                <p class="text-muted">
+                    Upload Excel or CSV invoice files with customer data.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="150">
+            <div class="card h-100 p-3 text-center">
+                <h4>⚙️ Automatic Processing</h4>
+                <p class="text-muted">
+                    System validates, groups invoices, and generates PDFs.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card h-100 p-3 text-center">
+                <h4>📦 Download Results</h4>
+                <p class="text-muted">
+                    Get ZIP file with all generated invoices instantly.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =======================
+        REQUIREMENTS
+======================= -->
+
+<div class="container mt-5" data-aos="fade-up">
+
+    <div class="card p-4">
+
+        <h3 class="section-title">Required File Structure</h3>
+
+        <p class="text-muted">
+            Your spreadsheet must include the following columns:
+        </p>
+
+        <ul>
+            <li>customer</li>
+            <li>email</li>
+            <li>item</li>
+            <li>price</li>
+            <li>quantity</li>
+        </ul>
+
+    </div>
+
+</div>
+
+<!-- =======================
+        EXAMPLE DATA
+======================= -->
+
+<div class="container mt-4" data-aos="fade-up">
+
+    <div class="card p-4">
+
+        <h3 class="section-title">Example Data</h3>
+
+        <div class="table-responsive">
+
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Item</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>John Banda</td>
+                        <td>john@gmail.com</td>
+                        <td>Laptop</td>
+                        <td>1200</td>
+                        <td>1</td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =======================
+        VALIDATION
+======================= -->
+
+<div class="container mt-4 mb-5" data-aos="fade-up">
+
+    <div class="card p-4">
+
+        <h3 class="section-title">Validation Rules</h3>
+
+        <ul class="mb-0">
+            <li>Customer name cannot be blank</li>
+            <li>Email must be valid</li>
+            <li>Price must be positive</li>
+            <li>Quantity must be a whole number</li>
+        </ul>
+
+    </div>
+
+</div>
+
+{% endblock %}

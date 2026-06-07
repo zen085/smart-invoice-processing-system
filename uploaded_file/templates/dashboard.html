@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ===================== -->
+<!-- ANIMATION LIBRARIES -->
+<!-- ===================== -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+    AOS.init({
+        duration: 700,
+        once: true
+    });
+</script>
+
+<style>
+
+/* ===================== */
+/* PAGE BACKGROUND */
+/* ===================== */
+
+body {
+    background: #f8f9fa;
+}
+
+/* ===================== */
+/* CARD STYLE */
+/* ===================== */
+
+.card {
+    border: none;
+    border-radius: 14px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* ===================== */
+/* BUTTONS */
+/* ===================== */
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: scale(1.04);
+}
+
+/* ===================== */
+/* BADGE */
+/* ===================== */
+
+.badge {
+    transition: all 0.2s ease;
+}
+
+/* ===================== */
+/* TABLE */
+/* ===================== */
+
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table thead {
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+}
+
+</style>
+
+<div class="container py-5">
+
+<!-- ===================== -->
+<!-- HEADER -->
+<!-- ===================== -->
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 fade-in">
+
+    <div>
+        <h2 class="fw-bold mb-1 animate__animated animate__fadeInDown">
+            Upload Dashboard
+        </h2>
+
+        <p class="text-muted mb-0 animate__animated animate__fadeInUp">
+            Manage uploaded invoice files and processing status
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <form method="post" action="{% url 'clear-dashboard' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-secondary">
+                Clear Dashboard
+            </button>
+        </form>
+
+        <a href="{% url 'upload-file' %}" class="btn btn-dark">
+            Upload File
+        </a>
+
+    </div>
+
+</div>
+
+<!-- ===================== -->
+<!-- CARD WRAPPER -->
+<!-- ===================== -->
+
+<div class="card shadow-sm rounded-4 overflow-hidden p-2">
+
+{% if uploaded_files %}
+
+<div class="table-responsive">
+
+<table class="table align-middle mb-0">
+
+    <thead class="table-dark">
+        <tr>
+            <th class="px-4 py-3">File</th>
+            <th>Status</th>
+            <th class="text-center">Invoices</th>
+            <th>Uploaded</th>
+            <th class="text-center">Archive</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for file in uploaded_files %}
+
+        <tr data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+
+            <!-- FILE -->
+            <td class="px-4 py-3">
+
+                <div class="fw-semibold">
+                    {{ file.file.name|truncatechars:40 }}
+                </div>
+
+                <div id="error-{{ file.id }}" class="small text-danger mt-1">
+                    {% if file.status == "failed" and file.error_message %}
+                        {{ file.error_message }}
+                    {% endif %}
+                </div>
+
+            </td>
+
+            <!-- STATUS -->
+            <td>
+                <span
+                    id="status-{{ file.id }}"
+                    class="badge bg-secondary rounded-pill px-3 py-2"
+                >
+                    Loading...
+                </span>
+            </td>
+
+            <!-- INVOICES -->
+            <td class="text-center fw-semibold">
+                {{ file.invoices.count }}
+            </td>
+
+            <!-- DATE -->
+            <td class="text-muted small">
+                {{ file.created_at|date:"M d, Y · h:i A" }}
+            </td>
+
+            <!-- DOWNLOAD -->
+            <td class="text-center">
+
+                {% if file.invoice_archive %}
+                    <a href="{{ file.invoice_archive.url }}"
+                       target="_blank"
+                       class="btn btn-sm btn-outline-dark">
+                        Download ZIP
+                    </a>
+                {% else %}
+                    <span class="text-muted small">
+                        Not Ready
+                    </span>
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+</div>
+
+{% else %}
+
+<!-- EMPTY STATE -->
+
+<div class="text-center py-5" data-aos="fade-up">
+
+    <h4 class="fw-semibold mb-2">
+        No uploads yet
+    </h4>
+
+    <p class="text-muted mb-4">
+        Upload your first invoice file to start processing.
+    </p>
+
+    <a href="{% url 'upload-file' %}" class="btn btn-dark">
+        Upload File
+    </a>
+
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+<!-- ===================== -->
+<!-- STATUS POLLING SCRIPT -->
+<!-- ===================== -->
+
+<script>
+const STATUS_ENDPOINT = "/uploads/upload-status/";
+
+const STATUS_CLASSES = {
+    pending: "bg-warning text-dark",
+    processing: "bg-primary",
+    processed: "bg-success",
+    failed: "bg-danger"
+};
+
+async function updateDashboardStatus() {
+
+    const badges = document.querySelectorAll("[id^='status-']");
+
+    for (const badge of badges) {
+
+        const fileId = badge.id.replace("status-", "");
+
+        try {
+
+            const response = await fetch(`${STATUS_ENDPOINT}${fileId}/`);
+            const data = await response.json();
+
+            const status = (data.status || "").toLowerCase();
+
+            badge.className =
+                `badge rounded-pill px-3 py-2 ${STATUS_CLASSES[status] || "bg-secondary"}`;
+
+            badge.textContent =
+                status.charAt(0).toUpperCase() + status.slice(1);
+
+            const errorElement =
+                document.getElementById(`error-${fileId}`);
+
+            if (errorElement) {
+                errorElement.textContent = data.error || "";
+            }
+
+        } catch (error) {
+            console.error("Failed to fetch status", error);
+        }
+    }
+}
+
+updateDashboardStatus();
+setInterval(updateDashboardStatus, 3000);
+
+</script>
+
+{% endblock %}

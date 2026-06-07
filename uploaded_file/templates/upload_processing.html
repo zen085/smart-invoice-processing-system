@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ===================== -->
+<!-- ANIMATION LIBRARIES -->
+<!-- ===================== -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+    AOS.init({
+        duration: 700,
+        once: true
+    });
+</script>
+
+<style>
+
+/* ===================== */
+/* BACKGROUND */
+/* ===================== */
+
+body {
+    background: #f8f9fa;
+}
+
+/* ===================== */
+/* CARD */
+/* ===================== */
+
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    transition: all 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+/* ===================== */
+/* SPINNER */
+/* ===================== */
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* ===================== */
+/* TEXT ANIMATION */
+/* ===================== */
+
+.fade-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+
+<div class="container py-5 d-flex justify-content-center">
+
+    <div class="col-12 col-md-6">
+
+        <!-- ===================== -->
+        <!-- MAIN CARD -->
+        <!-- ===================== -->
+
+        <div class="card text-center p-5 animate__animated animate__fadeInDown">
+
+            <!-- TITLE -->
+            <h3 class="fw-bold mb-2">
+                Processing Your File
+            </h3>
+
+            <p class="text-muted mb-4">
+                We are generating invoices from your uploaded file.
+                This may take a few moments.
+            </p>
+
+            <!-- SPINNER -->
+            <div class="my-4" data-aos="zoom-in">
+                <div class="spinner-border text-dark" role="status">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+            </div>
+
+            <!-- STATUS TEXT -->
+            <p id="status-text" class="small text-muted mb-0 fade-in">
+                Initializing processing...
+            </p>
+
+        </div>
+
+        <!-- ===================== -->
+        <!-- INFO NOTE -->
+        <!-- ===================== -->
+
+        <p class="text-center text-muted small mt-3 fade-in">
+            You can safely leave this page. We will continue processing in the background.
+        </p>
+
+    </div>
+
+</div>
+
+<!-- ===================== -->
+<!-- POLLING SCRIPT -->
+<!-- ===================== -->
+
+<script>
+
+const statusUrl = "{% url 'upload-status' file.id %}";
+const dashboardUrl = "{% url 'upload-dashboard' %}";
+
+setInterval(function () {
+
+    fetch(statusUrl)
+        .then(res => res.json())
+        .then(data => {
+
+            const statusText = document.getElementById("status-text");
+
+            if (!statusText) return;
+
+            if (data.status === "processing") {
+                statusText.innerText = "Processing invoices...";
+            }
+
+            if (data.status === "processed") {
+                statusText.innerText = "Completed! Redirecting...";
+                setTimeout(() => window.location.href = dashboardUrl, 800);
+            }
+
+            if (data.status === "failed") {
+                statusText.innerText = "Processing failed. Redirecting...";
+                setTimeout(() => window.location.href = dashboardUrl, 800);
+            }
+
+        })
+        .catch(() => {
+            // ignore network errors
+        });
+
+}, 3000);
+
+</script>
+
+{% endblock %}

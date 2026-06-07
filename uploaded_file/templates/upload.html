@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ===================== -->
+<!-- ANIMATION LIBRARIES -->
+<!-- ===================== -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+    AOS.init({
+        duration: 700,
+        once: true
+    });
+</script>
+
+<style>
+
+/* ===================== */
+/* PAGE BACKGROUND */
+/* ===================== */
+
+body {
+    background: #f8f9fa;
+}
+
+/* ===================== */
+/* CARD STYLE */
+/* ===================== */
+
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    transition: all 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* ===================== */
+/* FORM STYLING */
+/* ===================== */
+
+form p {
+    margin-bottom: 1rem;
+}
+
+input[type="file"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: 100%;
+    background: #fff;
+}
+
+/* ===================== */
+/* BUTTON */
+/* ===================== */
+
+.btn-dark {
+    transition: all 0.2s ease;
+}
+
+.btn-dark:hover {
+    transform: scale(1.05);
+}
+
+/* ===================== */
+/* TITLE */
+/* ===================== */
+
+.upload-title {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+</style>
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6" data-aos="fade-up">
+
+            <!-- ===================== -->
+            <!-- CARD -->
+            <!-- ===================== -->
+
+            <div class="card shadow-sm p-4 animate__animated animate__fadeInDown">
+
+                <h3 class="upload-title text-center">
+                    Upload Invoice File
+                </h3>
+
+                <p class="text-muted text-center mb-4">
+                    Upload Excel or CSV files to automatically generate invoices
+                </p>
+
+                <!-- ===================== -->
+                <!-- FORM -->
+                <!-- ===================== -->
+
+                <form method="post" enctype="multipart/form-data">
+
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        {{ form.as_p }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark btn-lg">
+                            Upload File
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
